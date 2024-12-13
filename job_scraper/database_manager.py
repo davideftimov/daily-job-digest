@@ -9,6 +9,8 @@ class Comment(SQLModel, table=True):
     filter: bool
     source: str  # To track which platform the job came from
     url: str
+    title: str | None = None
+    location: str | None = None
 
 class DatabaseManager:
     def __init__(self, sqlite_file_name="database.db"):
@@ -19,9 +21,9 @@ class DatabaseManager:
     def create_tables(self):
         SQLModel.metadata.create_all(self.engine)
 
-    def save_comment(self, comment_id: int, time: int, text: str, filter: bool, source: str, url: str):
+    def save_comment(self, comment_id: int, time: int, text: str, filter: bool, source: str, url: str, title: str = None, location: str = None):
         with Session(self.engine) as session:
-            comment = Comment(id=comment_id, time=time, text=text, filter=filter, source=source, url=url)
+            comment = Comment(id=comment_id, time=time, text=text, filter=filter, source=source, url=url, title=title, location=location)
             session.add(comment)
             session.commit()
 

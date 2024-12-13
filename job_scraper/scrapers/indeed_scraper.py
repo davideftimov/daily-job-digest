@@ -19,9 +19,10 @@ class IndeedScraper(JobScraper):
             site_name=["indeed"],
             search_term=self.search_term,
             location=self.location,
-            results_wanted=20,
-            hours_old=24,
-            country_indeed=self.country
+            results_wanted=40,
+            hours_old=58,
+            country_indeed=self.country,
+            # description_format='html',
         )
         print(f"Found {len(jobs)} jobs on Indeed for location: {self.location}")
         return jobs
@@ -31,15 +32,17 @@ class IndeedScraper(JobScraper):
         for _, job in jobs.iterrows():
             job_id = hash(job['job_url'])  # Create a unique ID from the URL
             description = job.get('description', '')
-            filter_result = self.job_filter.filter_job(description)
-            
+            filter_result = self.job_filter.filter_job(description, language_filter=True)
+
             self.db_manager.save_comment(
                 job_id,
                 int(pd.Timestamp(job.get('date_posted')).timestamp()),
                 description,
                 filter_result,
                 self.source,
-                job['job_url']
+                job['job_url'],
+                title=job.get('title', None),
+                location=job.get('location', None),
             )
 
     async def run(self):

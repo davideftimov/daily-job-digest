@@ -1,11 +1,11 @@
 from openai import OpenAI
-from .config import MODEL_NAME, PROMPT_LOC, PROMPT_EXP
+from .config import MODEL_NAME, PROMPT_LOC, PROMPT_LAN, PROMPT_EXP
 
 class JobFilter:
     def __init__(self):
         self.client = OpenAI()
 
-    def filter_job(self, comment_text: str, location_filter: bool = False) -> bool:
+    def filter_job(self, comment_text: str, location_filter: bool = False, language_filter: bool = False) -> bool:
         try:
             response = True
             if location_filter:
@@ -18,6 +18,18 @@ class JobFilter:
                 )
                 response = response and 'yes' in completion_loc.choices[0].message.content.lower()
                 print(f"Location: {response}")
+
+            if language_filter:
+                completion_lan = self.client.chat.completions.create(
+                    model=MODEL_NAME,
+                    messages=[
+                        {"role": "system", "content": PROMPT_LAN},
+                        {"role": "user", "content": comment_text}
+                    ],
+                )
+                response = response and 'yes' in completion_lan.choices[0].message.content.lower()
+                print(f"Language: {response}")
+
             
             completion_exp = self.client.chat.completions.create(
                 model=MODEL_NAME,

@@ -88,7 +88,7 @@ class HackerNewsJobScraper(JobScraper):
     async def process_jobs(self, jobs: List[int]):
         max_id = self.db_manager.get_max_comment_id(self.source)
 
-        for kid_id in jobs[:1]:
+        for kid_id in jobs[:5]:
             if kid_id > max_id:
                 kid_data = await self.fetch_item_data(kid_id)
                 if 'text' in kid_data:

@@ -7,11 +7,29 @@
   <title>Jobs</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/sindresorhus/github-markdown-css@4.0.0/github-markdown.css">
+  <style>
+    .markdown-body {
+      box-sizing: border-box;
+      color: #c0c4c8;
+      background-color: transparent;
+    }
+
+    .markdown-body ul {
+      list-style-type: disc;
+      margin-left: 20px;
+    }
+
+    .markdown-body ol {
+      list-style-type: decimal;
+      margin-left: 20px;
+    }
+  </style>
 </head>
 
-<body class="min-h-screen bg-zinc-900 text-gray-100">
+<body class="min-h-screen bg-black text-gray-100">
 
-  <div id="comments-container" class="max-w-7xl mx-auto p-4">
+  <div id="comments-container" class="max-w-3xl mx-auto p-4">
     <p id="loading" class="text-center text-lg">Loading comments...</p>
     <p id="error" class="text-center text-red-500 hidden"></p>
     <p id="jobs-count" class="text-zinc-200 mb-4 hidden"></p>
@@ -42,13 +60,13 @@
       }
 
       function displayComments(comments) {
-        const filteredComments = comments.filter(comment => comment.filter === false);
+        const filteredComments = comments.filter(comment => comment.filter === true);
         jobsCount.textContent = `${filteredComments.length} jobs`;
         jobsCount.classList.remove('hidden');
 
         filteredComments.forEach(comment => {
           const commentDiv = document.createElement('div');
-          commentDiv.className = "rounded-lg p-4 mb-4 bg-zinc-800 shadow-md";
+          commentDiv.className = "rounded-lg p-4 mb-4 border border-slate-800 shadow-md";
 
           const date = new Date(comment.time * 1000).toLocaleDateString("en-US", {
             year: "numeric",
@@ -58,16 +76,25 @@
             minute: "2-digit",
           });
 
-          const commentText = comment.source === 'indeed' ? marked.parse(comment.text) : comment.text;
+          const commentText = comment.source === 'indeed'
+            ? `<div class="markdown-body">${marked.parse(comment.text)}</div>`
+            : `<div class="">${comment.text}</div>`;
 
           commentDiv.innerHTML = `
-            <p class="text-sm text-zinc-400">${date}</p>
+            <div class="flex justify-between">
+              ${comment.source === 'hackernews' ? '' : `<p class="text-sm text-zinc-400">${comment.title}</p>`}
+              <a href="${comment.url}" 
+                class="text-blue-500 hover:underline" 
+                target="_blank" rel="noopener noreferrer">
+                ${comment.source === 'hackernews' ? 'View on Hacker News' : 'View on Indeed'}
+              </a>
+            </div>
+            <div class="flex justify-between">
+              <p class="text-sm text-zinc-400 text-end">${date}</p>
+              ${comment.source === 'hackernews' ? '' : `<p class="text-sm text-zinc-400">${comment.location}</p>`}
+            </div>
+            <hr class="my-4 border-slate-800">
             <div class="mt-2 text-zinc-200">${commentText}</div>
-            <a href="${comment.url}" 
-              class="text-blue-800 hover:underline" 
-              target="_blank" rel="noopener noreferrer">
-              ${comment.source === 'hackernews' ? 'View on Hacker News' : 'View on Indeed'}
-            </a>
           `;
           commentsContainer.appendChild(commentDiv);
         });

@@ -16,6 +16,8 @@ class Comment(SQLModel, table=True):
     filter: bool
     source: str
     url: str
+    title: str | None = None
+    location: str | None = None
 
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)

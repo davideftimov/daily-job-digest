@@ -6,6 +6,11 @@ PROMPT_LOC = """Given the job offer your task is to check if the offer fulfills 
 
 Respond only with 'YES' or 'NO'."""
 
+PROMPT_LAN = """Given the job offer your task is to check if the offer fulfills the following criterium:
+-The job offer is written in English or French
+
+Respond only with 'YES' or 'NO'."""
+
 PROMPT_EXP = """Given the job offer your task is to check if the offer fulfills the following criterium:
 -The job is for entry to mid level candidates
 

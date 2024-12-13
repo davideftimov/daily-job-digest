@@ -26,34 +26,34 @@ class JobScraperOrchestrator:
                 location='Berlin, Germany',
                 country='Germany'
             ),
-            IndeedScraper(
-                db_manager=self.db_manager,
-                job_filter=self.job_filter,
-                search_term='software engineer -senior',
-                location='Amsterdam, Netherlands',
-                country='Netherlands'
-            ),
-            IndeedScraper(
-                db_manager=self.db_manager,
-                job_filter=self.job_filter,
-                search_term='software engineer -senior',
-                location='Geneva, Switzerland',
-                country='Switzerland'
-            ),
-            IndeedScraper(
-                db_manager=self.db_manager,
-                job_filter=self.job_filter,
-                search_term='ingénieur logiciel -senior',
-                location='Paris, France',
-                country='France'
-            ),
-            IndeedScraper(
-                db_manager=self.db_manager,
-                job_filter=self.job_filter,
-                search_term='ingénieur logiciel -senior',
-                location='Nice, France',
-                country='France'
-            ),
+            # IndeedScraper(
+            #     db_manager=self.db_manager,
+            #     job_filter=self.job_filter,
+            #     search_term='software engineer -senior',
+            #     location='Amsterdam, Netherlands',
+            #     country='Netherlands'
+            # ),
+            # IndeedScraper(
+            #     db_manager=self.db_manager,
+            #     job_filter=self.job_filter,
+            #     search_term='software engineer -senior',
+            #     location='Geneva, Switzerland',
+            #     country='Switzerland'
+            # ),
+            # IndeedScraper(
+            #     db_manager=self.db_manager,
+            #     job_filter=self.job_filter,
+            #     search_term='ingénieur logiciel -senior',
+            #     location='Paris, France',
+            #     country='France'
+            # ),
+            # IndeedScraper(
+            #     db_manager=self.db_manager,
+            #     job_filter=self.job_filter,
+            #     search_term='ingénieur logiciel -senior',
+            #     location='Nice, France',
+            #     country='France'
+            # ),
         ]
 
     async def run(self):
