@@ -28,15 +28,14 @@ class IndeedScraper(JobScraper):
         return jobs
 
     async def process_jobs(self, jobs: pd.DataFrame):
-        
         for _, job in jobs.iterrows():
-            job_id = hash(job['job_url'])  # Create a unique ID from the URL
+            job_id = hash(job['job_url'])
             description = job.get('description', '')
             filter_result = self.job_filter.filter_job(description, language_filter=True)
-
+            
             self.db_manager.save_comment(
                 job_id,
-                int(pd.Timestamp(job.get('date_posted')).timestamp()),
+                int(pd.Timestamp(job.get('date_posted'), tz='UTC').timestamp()),
                 description,
                 filter_result,
                 self.source,
