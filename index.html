@@ -11,8 +11,14 @@
   <style>
     .markdown-body {
       box-sizing: border-box;
-      color: #c0c4c8;
       background-color: transparent;
+      color: inherit;
+      /* This will inherit the text-zinc-300 color */
+    }
+
+    .markdown-body * {
+      color: inherit;
+      /* This ensures all elements inside markdown inherit the color */
     }
 
     .markdown-body ul {
@@ -27,30 +33,30 @@
   </style>
 </head>
 
-<body class="min-h-screen bg-black text-gray-100">
+<body class="min-h-screen bg-black text-zinc-300">
 
-  <div id="comments-container" class="max-w-3xl mx-auto p-4">
-    <p id="loading" class="text-center text-lg">Loading comments...</p>
+  <div id="jobs-container" class="max-w-3xl mx-auto p-4 text-zinc-300">
+    <p id="loading" class="text-center text-lg">Loading jobs...</p>
     <p id="error" class="text-center text-red-500 hidden"></p>
-    <p id="jobs-count" class="text-zinc-200 mb-4 hidden"></p>
+    <p id="jobs-count" class="mb-4 hidden"></p>
   </div>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const commentsContainer = document.getElementById('comments-container');
+      const jobsContainer = document.getElementById('jobs-container');
       const loadingMessage = document.getElementById('loading');
       const errorMessage = document.getElementById('error');
       const jobsCount = document.getElementById('jobs-count');
 
-      async function fetchComments() {
+      async function fetchJobs() {
         try {
           const response = await fetch("http://127.0.0.1:8000/comments");
           if (!response.ok) {
-            throw new Error("Failed to fetch comments");
+            throw new Error("Failed to fetch jobs");
           }
-          const comments = await response.json();
-          console.log(comments);
-          displayComments(comments);
+          const jobs = await response.json();
+          console.log(jobs);
+          displayJobs(jobs);
         } catch (error) {
           errorMessage.textContent = error.message;
           errorMessage.classList.remove('hidden');
@@ -59,16 +65,16 @@
         }
       }
 
-      function displayComments(comments) {
-        const filteredComments = comments.filter(comment => comment.filter === true);
-        jobsCount.textContent = `${filteredComments.length} jobs`;
+      function displayJobs(jobs) {
+        const filteredJobs = jobs.filter(job => job.filter === true);
+        jobsCount.textContent = `${filteredJobs.length} jobs`;
         jobsCount.classList.remove('hidden');
 
-        filteredComments.forEach(comment => {
-          const commentDiv = document.createElement('div');
-          commentDiv.className = "rounded-lg p-4 mb-4 border border-slate-800 shadow-md";
+        filteredJobs.forEach(job => {
+          const jobDiv = document.createElement('div');
+          jobDiv.className = "rounded-lg p-4 mb-4 border border-slate-800 shadow-md";
 
-          const date = new Date(comment.time * 1000).toLocaleDateString("en-US", {
+          const date = new Date(job.time * 1000).toLocaleDateString("en-US", {
             year: "numeric",
             month: "long",
             day: "numeric",
@@ -76,31 +82,50 @@
             minute: "2-digit",
           });
 
-          const commentText = comment.source === 'indeed'
-            ? `<div class="markdown-body">${marked.parse(comment.text)}</div>`
-            : `<div class="">${comment.text}</div>`;
+          jobDiv.innerHTML = job.source === 'hackernews'
+            ? getHackerNewsTemplate(job, date)
+            : getDefaultJobTemplate(job, date);
 
-          commentDiv.innerHTML = `
-            <div class="flex justify-between">
-              ${comment.source === 'hackernews' ? '' : `<p class="text-sm text-zinc-400">${comment.title}</p>`}
-              <a href="${comment.url}" 
-                class="text-blue-500 hover:underline" 
-                target="_blank" rel="noopener noreferrer">
-                ${comment.source === 'hackernews' ? 'View on Hacker News' : 'View on Indeed'}
-              </a>
-            </div>
-            <div class="flex justify-between">
-              <p class="text-sm text-zinc-400 text-end">${date}</p>
-              ${comment.source === 'hackernews' ? '' : `<p class="text-sm text-zinc-400">${comment.location}</p>`}
-            </div>
-            <hr class="my-4 border-slate-800">
-            <div class="mt-2 text-zinc-200">${commentText}</div>
-          `;
-          commentsContainer.appendChild(commentDiv);
+          jobsContainer.appendChild(jobDiv);
         });
       }
 
-      fetchComments();
+      function getHackerNewsTemplate(job, date) {
+        return `
+          <div class="flex justify-between">
+            <p class="text-sm text-end">${date}</p>
+            <a href="${job.url}" 
+              class="text-blue-500 hover:underline" 
+              target="_blank" rel="noopener noreferrer">
+              View on Hacker News
+            </a>
+          </div>
+          <hr class="my-4 border-slate-800">
+          <div class="mt-2">${job.text}</div>
+        `;
+      }
+
+      function getDefaultJobTemplate(job, date) {
+        const jobText = `<div class="markdown-body">${marked.parse(job.text)}</div>`;
+        return `
+          <div class="flex justify-between">
+            <p class="font-bold">${job.title}</p>
+            <a href="${job.url}" 
+              class="text-blue-500 hover:underline" 
+              target="_blank" rel="noopener noreferrer">
+              View on ${job.source.charAt(0).toUpperCase() + job.source.slice(1)}
+            </a>
+          </div>
+          <div class="flex justify-between">
+            <p class="text-sm text-end">${date}</p>
+            <p class="text-sm">${job.location}</p>
+          </div>
+          <hr class="my-4 border-slate-800">
+          <div class="mt-2">${jobText}</div>
+        `;
+      }
+
+      fetchJobs();
     });
   </script>
 
