@@ -1,6 +1,7 @@
 import asyncio
 import os
 from dotenv import load_dotenv
+from .config import SCRAPERS
 
 from .database_manager import DatabaseManager
 from .job_filter import JobFilter
@@ -12,49 +13,33 @@ class JobScraperOrchestrator:
         load_dotenv()
         self.db_manager = DatabaseManager()
         self.job_filter = JobFilter()
-        self.scrapers = [
-            HackerNewsJobScraper(
-                google_api_key=os.getenv('GOOGLE_API_KEY'),
-                cse_id=os.getenv('CSE_ID'),
-                db_manager=self.db_manager,
-                job_filter=self.job_filter
-            ),
-            IndeedScraper(
-                db_manager=self.db_manager,
-                job_filter=self.job_filter,
-                search_term='software engineer -senior',
-                location='Berlin, Germany',
-                country='Germany'
-            ),
-            # IndeedScraper(
-            #     db_manager=self.db_manager,
-            #     job_filter=self.job_filter,
-            #     search_term='software engineer -senior',
-            #     location='Amsterdam, Netherlands',
-            #     country='Netherlands'
-            # ),
-            # IndeedScraper(
-            #     db_manager=self.db_manager,
-            #     job_filter=self.job_filter,
-            #     search_term='software engineer -senior',
-            #     location='Geneva, Switzerland',
-            #     country='Switzerland'
-            # ),
-            # IndeedScraper(
-            #     db_manager=self.db_manager,
-            #     job_filter=self.job_filter,
-            #     search_term='ingénieur logiciel -senior',
-            #     location='Paris, France',
-            #     country='France'
-            # ),
-            # IndeedScraper(
-            #     db_manager=self.db_manager,
-            #     job_filter=self.job_filter,
-            #     search_term='ingénieur logiciel -senior',
-            #     location='Nice, France',
-            #     country='France'
-            # ),
-        ]
+        self.scrapers = []
+        
+        for config in SCRAPERS:
+            prompts = config["prompts"]
+            filter_instance = JobFilter(prompts)
+            
+            if config["type"] == "indeed":
+                self.scrapers.append(
+                    IndeedScraper(
+                        db_manager=self.db_manager,
+                        job_filter=filter_instance,
+                        filter_id=id(prompts),
+                        search_term=config["search_term"],
+                        location=config["location"],
+                        country=config["country"]
+                    )
+                )
+            elif config["type"] == "hackernews":
+                self.scrapers.append(
+                    HackerNewsJobScraper(
+                        google_api_key=os.getenv('GOOGLE_API_KEY'),
+                        cse_id=os.getenv('CSE_ID'),
+                        db_manager=self.db_manager,
+                        job_filter=filter_instance,
+                        filter_id=id(prompts)
+                    )
+                )
 
     async def run(self):
         for scraper in self.scrapers:

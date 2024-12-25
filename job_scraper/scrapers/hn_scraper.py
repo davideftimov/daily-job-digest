@@ -6,15 +6,16 @@ import calendar
 from typing import Optional, List, Dict
 
 from job_scraper.scrapers.base_scraper import JobScraper
-from job_scraper.database_manager import DatabaseManager
+from job_scraper.database_manager import DatabaseManager, Job
 from job_scraper.job_filter import JobFilter
 
 class HackerNewsJobScraper(JobScraper):
-    def __init__(self, google_api_key: str, cse_id: str, db_manager: DatabaseManager, job_filter: JobFilter):
+    def __init__(self, google_api_key: str, cse_id: str, db_manager: DatabaseManager, job_filter: JobFilter, filter_id: int):
         self.google_api_key = google_api_key
         self.cse_id = cse_id
         self.db_manager = db_manager
         self.job_filter = job_filter
+        self.filter_id = filter_id
         self.source = "hackernews"
 
     def get_who_is_hiring_query(self) -> str:
@@ -86,21 +87,21 @@ class HackerNewsJobScraper(JobScraper):
         return []
 
     async def process_jobs(self, jobs: List[int]):
-        max_id = self.db_manager.get_max_comment_id(self.source)
+        max_id = self.db_manager.get_max_job_id(self.source)
 
         for kid_id in jobs[:2]:
             if kid_id > max_id:
                 kid_data = await self.fetch_item_data(kid_id)
                 if 'text' in kid_data:
-                    filter_result = self.job_filter.filter_job(kid_data['text'], location_filter=True)
-                    self.db_manager.save_comment(
-                        kid_data['id'],
-                        kid_data['time'],
-                        kid_data.get('text', 'No text available'),
-                        filter_result,
-                        self.source,
-                        "https://news.ycombinator.com/item?id=" + str(kid_data['id'])
-                    )
+                    filter_result = self.job_filter.filter_job(kid_data['text'], self.filter_id)
+                    self.db_manager.save_job(Job(
+                        id = kid_data['id'],
+                        time = kid_data['time'],
+                        text = kid_data.get('text', 'No text available'),
+                        filter = filter_result,
+                        source = self.source,
+                        url = "https://news.ycombinator.com/item?id=" + str(kid_data['id'])
+                    ))
 
     async def run(self):
         try:

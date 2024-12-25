@@ -2,7 +2,7 @@
 from sqlmodel import Field, Session, SQLModel, create_engine, select
 from datetime import datetime
 
-class Comment(SQLModel, table=True):
+class Job(SQLModel, table=True):
     id: int = Field(primary_key=True)
     time: int
     text: str
@@ -21,17 +21,16 @@ class DatabaseManager:
     def create_tables(self):
         SQLModel.metadata.create_all(self.engine)
 
-    def save_comment(self, comment_id: int, time: int, text: str, filter: bool, source: str, url: str, title: str = None, location: str = None):
+    def save_job(self, job: Job):
         with Session(self.engine) as session:
-            comment = Comment(id=comment_id, time=time, text=text, filter=filter, source=source, url=url, title=title, location=location)
-            session.add(comment)
+            session.add(job)
             session.commit()
 
-    def get_max_comment_id(self, source: str) -> int:
+    def get_max_job_id(self, source: str) -> int:
         with Session(self.engine) as session:
             max_id = session.exec(
-                select(Comment)
-                .where(Comment.source == source)
-                .order_by(Comment.id.desc())
+                select(Job)
+                .where(Job.source == source)
+                .order_by(Job.id.desc())
             ).first()
             return max_id.id if max_id is not None else 0
