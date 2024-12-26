@@ -1,9 +1,8 @@
-
 from sqlmodel import Field, Session, SQLModel, create_engine, select
 from datetime import datetime
 
 class Job(SQLModel, table=True):
-    id: int = Field(primary_key=True)
+    id: str = Field(primary_key=True)
     time: int
     time_scraped: int
     text: str
@@ -12,6 +11,7 @@ class Job(SQLModel, table=True):
     url: str
     title: str | None = None
     location: str | None = None
+    hn_id: int | None = None
 
 class DatabaseManager:
     def __init__(self, sqlite_file_name="database.db"):
@@ -22,16 +22,25 @@ class DatabaseManager:
     def create_tables(self):
         SQLModel.metadata.create_all(self.engine)
 
-    def save_job(self, job: Job):
+    def job_exists(self, job_id: str) -> bool:
         with Session(self.engine) as session:
-            session.add(job)
-            session.commit()
+            existing_job = session.exec(
+                select(Job)
+                .where(Job.id == job_id)
+            ).first()
+            return existing_job is not None
 
-    def get_max_job_id(self, source: str) -> int:
+    def save_job(self, job: Job):
+        if not self.job_exists(job.id):
+            with Session(self.engine) as session:
+                session.add(job)
+                session.commit()
+
+    def get_max_hn_id(self) -> int:
         with Session(self.engine) as session:
             max_id = session.exec(
                 select(Job)
-                .where(Job.source == source)
-                .order_by(Job.id.desc())
+                .where(Job.source == "hackernews")
+                .order_by(Job.hn_id.desc())
             ).first()
-            return max_id.id if max_id is not None else 0
+            return max_id.hn_id if max_id is not None else 0

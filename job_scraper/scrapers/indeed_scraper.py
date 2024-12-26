@@ -22,7 +22,7 @@ class IndeedScraper(JobScraper):
             site_name=["indeed"],
             search_term=self.search_term,
             location=self.location,
-            results_wanted=100,
+            results_wanted=10,
             hours_old=24,
             country_indeed=self.country,
             # description_format='html',
@@ -32,12 +32,11 @@ class IndeedScraper(JobScraper):
 
     async def process_jobs(self, jobs: pd.DataFrame):
         for _, job in jobs.iterrows():
-            job_id = hash(job['job_url'])
             description = job.get('description', '')
             filter_result = self.job_filter.filter_job(description, self.filter_id)
 
             job = Job(
-                id=job_id, 
+                id=job['id'], 
                 time=int(pd.Timestamp(job.get('date_posted'), tz='UTC').timestamp()),
                 time_scraped=int(datetime.now().timestamp()),
                 text=description, 

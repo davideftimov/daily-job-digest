@@ -87,7 +87,7 @@ class HackerNewsJobScraper(JobScraper):
         return []
 
     async def process_jobs(self, jobs: List[int]):
-        max_id = self.db_manager.get_max_job_id(self.source)
+        max_id = self.db_manager.get_max_hn_id()
 
         for kid_id in jobs[:2]:
             if kid_id > max_id:
@@ -95,13 +95,14 @@ class HackerNewsJobScraper(JobScraper):
                 if 'text' in kid_data:
                     filter_result = self.job_filter.filter_job(kid_data['text'], self.filter_id)
                     self.db_manager.save_job(Job(
-                        id = kid_data['id'],
+                        id = f"hn-{kid_id}",
                         time = kid_data['time'],
                         time_scraped = int(datetime.now().timestamp()),
                         text = kid_data.get('text', 'No text available'),
                         filter = filter_result,
                         source = self.source,
-                        url = "https://news.ycombinator.com/item?id=" + str(kid_data['id'])
+                        url = "https://news.ycombinator.com/item?id=" + str(kid_id),
+                        hn_id = kid_id,
                     ))
 
     async def run(self):

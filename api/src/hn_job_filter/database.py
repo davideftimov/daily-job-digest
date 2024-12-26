@@ -10,7 +10,7 @@ connect_args = {"check_same_thread": False}
 engine = create_engine(sqlite_url, connect_args=connect_args)
 
 class Job(SQLModel, table=True):
-    id: int = Field(primary_key=True)
+    id: str = Field(primary_key=True)
     time: int
     time_scraped: int
     text: str
@@ -19,6 +19,7 @@ class Job(SQLModel, table=True):
     url: str
     title: str = Field(default=None)
     location: str = Field(default=None)
+    hn_id: int = Field(default=None)
 
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
