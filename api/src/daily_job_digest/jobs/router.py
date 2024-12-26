@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Request, Query
 from sqlmodel import select
-from hn_job_filter.database import Job
-from hn_job_filter.database import SessionDep
+from daily_job_digest.database import Job
+from daily_job_digest.database import SessionDep
 from datetime import datetime, date, time
 
 router = APIRouter()

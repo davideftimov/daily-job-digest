@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from hn_job_filter.database import create_db_and_tables
-from hn_job_filter.jobs import router as job_router
+from daily_job_digest.database import create_db_and_tables
+from daily_job_digest.jobs import router as job_router
 from contextlib import asynccontextmanager
 
 @asynccontextmanager
