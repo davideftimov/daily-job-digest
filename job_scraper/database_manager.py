@@ -5,6 +5,7 @@ from datetime import datetime
 class Job(SQLModel, table=True):
     id: int = Field(primary_key=True)
     time: int
+    time_scraped: int
     text: str
     filter: bool
     source: str  # To track which platform the job came from

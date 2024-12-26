@@ -97,6 +97,7 @@ class HackerNewsJobScraper(JobScraper):
                     self.db_manager.save_job(Job(
                         id = kid_data['id'],
                         time = kid_data['time'],
+                        time_scraped = int(datetime.now().timestamp()),
                         text = kid_data.get('text', 'No text available'),
                         filter = filter_result,
                         source = self.source,

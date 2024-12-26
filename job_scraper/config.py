@@ -39,27 +39,41 @@ PROMPTS = {
 SCRAPERS = [
     {
         "type": "indeed",
-        "search_term": "software engineer -senior",
+        "search_term": "software engineer -senior -internship",
         "location": "Berlin, Germany",
         "country": "Germany",
-        "prompts": ["location", "language", "job_type", "experience"]
+        "prompts": ["language", "job_type", "experience"]
     },
     {
         "type": "indeed",
-        "search_term": "software engineer -senior",
+        "search_term": "software engineer -senior -internship",
         "location": "Amsterdam, Netherlands",
         "country": "Netherlands",
-        "prompts": ["location", "language", "job_type"]
+        "prompts": ["language", "job_type", "experience"]
     },
     {
         "type": "indeed",
-        "search_term": "ingénieur logiciel -senior",
+        "search_term": "ingénieur logiciel -senior -stage",
         "location": "Paris, France",
         "country": "France",
-        "prompts": ["location", "job_type"]  # Example without language check
+        "prompts": ["job_type", "experience"]
     },
     {
-        "type": "hackernews",
-        "prompts": ["location", "language", "job_type", "experience"]
-    }
+        "type": "indeed",
+        "search_term": "ingénieur logiciel -senior -stage",
+        "location": "Nice, France",
+        "country": "France",
+        "prompts": ["job_type", "experience"]
+    },
+    {
+        "type": "indeed",
+        "search_term": "software engineer -senior -internship",
+        "location": "Geneva, Switzerland",
+        "country": "Switzerland",
+        "prompts": ["job_type", "experience"]
+    },
+    # {
+    #     "type": "hackernews",
+    #     "prompts": ["location", "language", "job_type", "experience"]
+    # }
 ]

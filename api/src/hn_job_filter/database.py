@@ -12,6 +12,7 @@ engine = create_engine(sqlite_url, connect_args=connect_args)
 class Job(SQLModel, table=True):
     id: int = Field(primary_key=True)
     time: int
+    time_scraped: int
     text: str
     filter: bool
     source: str

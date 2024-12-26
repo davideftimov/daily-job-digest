@@ -4,6 +4,7 @@ from jobspy import scrape_jobs
 from job_scraper.scrapers.base_scraper import JobScraper
 from job_scraper.database_manager import DatabaseManager, Job
 from job_scraper.job_filter import JobFilter
+from datetime import datetime
 
 class IndeedScraper(JobScraper):
     def __init__(self, db_manager: DatabaseManager, job_filter: JobFilter, filter_id: int, search_term: str, location: str, country: str, language_filter: bool = True):
@@ -21,7 +22,7 @@ class IndeedScraper(JobScraper):
             site_name=["indeed"],
             search_term=self.search_term,
             location=self.location,
-            results_wanted=2,
+            results_wanted=100,
             hours_old=24,
             country_indeed=self.country,
             # description_format='html',
@@ -37,7 +38,8 @@ class IndeedScraper(JobScraper):
 
             job = Job(
                 id=job_id, 
-                time=int(pd.Timestamp(job.get('date_posted'), tz='UTC').timestamp()), 
+                time=int(pd.Timestamp(job.get('date_posted'), tz='UTC').timestamp()),
+                time_scraped=int(datetime.now().timestamp()),
                 text=description, 
                 filter=filter_result, 
                 source=self.source, 
