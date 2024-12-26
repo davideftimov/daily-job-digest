@@ -2,8 +2,7 @@ from fastapi import APIRouter, Request, Query
 from sqlmodel import select
 from hn_job_filter.database import Job
 from hn_job_filter.database import SessionDep
-from datetime import datetime, date
-import time
+from datetime import datetime, date, time
 
 router = APIRouter()
 
@@ -15,15 +14,13 @@ async def get_comments(request: Request, session: SessionDep):
 
 @router.get("/comments/by-date/{target_date}")
 async def get_comments_by_date(
-    target_date: str,
+    target_date: date,
     session: SessionDep
 ):
-    # Convert date string to timestamp range
-    date_obj = datetime.strptime(target_date, "%Y-%m-%d").date()
-    start_ts = int(datetime(date_obj.year, date_obj.month, date_obj.day).timestamp())
-    end_ts = int(datetime(date_obj.year, date_obj.month, date_obj.day, 23, 59, 59).timestamp())
+    # Convert date to timestamp range using combine
+    start_ts = int(datetime.combine(target_date, time.min).timestamp())
+    end_ts = int(datetime.combine(target_date, time.max).timestamp())
     
-    # Query jobs within the date range
     statement = select(Job).where(
         Job.time_scraped >= start_ts,
         Job.time_scraped <= end_ts
