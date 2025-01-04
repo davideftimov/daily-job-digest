@@ -12,6 +12,7 @@ class Job(SQLModel, table=True):
     title: str | None = None
     location: str | None = None
     hn_id: int | None = None
+    company: str | None = None
 
 class DatabaseManager:
     def __init__(self, sqlite_file_name="database.db"):

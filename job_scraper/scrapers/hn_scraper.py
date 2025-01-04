@@ -89,7 +89,7 @@ class HackerNewsJobScraper(JobScraper):
     async def process_jobs(self, jobs: List[int]):
         max_id = self.db_manager.get_max_hn_id()
 
-        for kid_id in jobs[:2]:
+        for kid_id in jobs:
             if kid_id > max_id:
                 kid_data = await self.fetch_item_data(kid_id)
                 if 'text' in kid_data:

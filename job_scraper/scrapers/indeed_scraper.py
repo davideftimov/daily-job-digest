@@ -22,7 +22,7 @@ class IndeedScraper(JobScraper):
             site_name=["indeed"],
             search_term=self.search_term,
             location=self.location,
-            results_wanted=10,
+            results_wanted=250,
             hours_old=24,
             country_indeed=self.country,
             # description_format='html',
@@ -44,7 +44,8 @@ class IndeedScraper(JobScraper):
                 source=self.source, 
                 url=job.get('job_url', None), 
                 title=job.get('title', None), 
-                location=job.get('location', None))
+                location=job.get('location', None),
+                company=job.get('company', None))
             
             self.db_manager.save_job(job)
 

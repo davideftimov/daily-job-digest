@@ -40,7 +40,7 @@ SCRAPERS = [
     {
         "type": "indeed",
         "search_term": "software engineer -senior -internship",
-        "location": "Berlin, Germany",
+        "location": "Frankfurt, Germany",
         "country": "Germany",
         "prompts": ["language", "job_type", "experience"]
     },
@@ -72,8 +72,8 @@ SCRAPERS = [
         "country": "Switzerland",
         "prompts": ["job_type", "experience"]
     },
-    # {
-    #     "type": "hackernews",
-    #     "prompts": ["location", "language", "job_type", "experience"]
-    # }
+    {
+        "type": "hackernews",
+        "prompts": ["location", "experience"]
+    }
 ]

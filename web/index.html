@@ -30,6 +30,52 @@
       list-style-type: decimal;
       margin-left: 20px;
     }
+
+    .job-group {
+      perspective: 1000px;
+    }
+
+    .jobs-wrapper {
+      position: relative;
+      padding: 0 30px;
+      /* Add padding to accommodate peek elements */
+    }
+
+    .job-card {
+      transition: all 0.5s ease;
+      position: relative;
+      width: 100%;
+    }
+
+    .peek-left,
+    .peek-right {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 30px;
+      height: 100%;
+      cursor: pointer;
+      opacity: 0.7;
+      transition: opacity 0.3s ease;
+      z-index: 10;
+    }
+
+    .peek-left:hover,
+    .peek-right:hover {
+      opacity: 1;
+    }
+
+    .peek-left {
+      left: 0;
+      background: linear-gradient(to right, rgba(30, 41, 59, 0.8), transparent);
+      border-radius: 4px 0 0 4px;
+    }
+
+    .peek-right {
+      right: 0;
+      background: linear-gradient(to left, rgba(30, 41, 59, 0.8), transparent);
+      border-radius: 0 4px 4px 0;
+    }
   </style>
 </head>
 
@@ -129,16 +175,140 @@
         jobsCount.textContent = `${filteredJobs.length} ${filteredJobs.length === 1 ? 'job' : 'jobs'}`;
         jobsCount.classList.remove('hidden');
 
-        filteredJobs.forEach(job => {
+        // Separate jobs with and without companies
+        const standAloneJobs = filteredJobs.filter(job => !job.company);
+        const jobsWithCompany = filteredJobs.filter(job => job.company);
+
+        // Group jobs by company
+        const jobsByCompany = jobsWithCompany.reduce((acc, job) => {
+          if (!acc[job.company]) acc[job.company] = [];
+          acc[job.company].push(job);
+          return acc;
+        }, {});
+
+        // Display company groups
+        Object.entries(jobsByCompany).forEach(([company, companyJobs]) => {
+          const groupDiv = document.createElement('div');
+          groupDiv.className = "job-group relative mb-8";
+
+          const jobsWrapper = document.createElement('div');
+          jobsWrapper.className = "jobs-wrapper relative";
+
+          if (companyJobs.length > 1) {
+            const peekLeft = document.createElement('div');
+            peekLeft.className = "peek-left";
+            peekLeft.onclick = (e) => {
+              e.stopPropagation();
+              navigateJobs(groupDiv, 'prev');
+            };
+            peekLeft.style.display = 'none';
+            jobsWrapper.appendChild(peekLeft);
+
+            const peekRight = document.createElement('div');
+            peekRight.className = "peek-right";
+            peekRight.onclick = (e) => {
+              e.stopPropagation();
+              navigateJobs(groupDiv, 'next');
+            };
+            jobsWrapper.appendChild(peekRight);
+          }
+
+          companyJobs.forEach((job, index) => {
+            const jobDiv = document.createElement('div');
+            jobDiv.className = `job-card rounded-lg p-4 border border-slate-800 shadow-md 
+              ${index === 0 ? 'block' : 'hidden'} relative`;
+            jobDiv.dataset.index = index;
+            jobDiv.dataset.total = companyJobs.length;
+
+            jobDiv.innerHTML = job.source === 'hackernews'
+              ? getHackerNewsTemplate(job)
+              : getDefaultJobTemplate(job);
+
+            jobsWrapper.appendChild(jobDiv);
+          });
+
+          if (companyJobs.length > 1) {
+            const indicators = document.createElement('div');
+            indicators.className = "flex justify-center gap-2 my-2";
+            companyJobs.forEach((_, idx) => {
+              const dot = document.createElement('div');
+              dot.className = `h-2 w-2 rounded-full transition-colors duration-300 
+                ${idx === 0 ? 'bg-zinc-300' : 'bg-zinc-700'}`;
+              dot.onclick = () => navigateToJob(groupDiv, idx);
+              indicators.appendChild(dot);
+            });
+            groupDiv.appendChild(indicators);
+          }
+
+          groupDiv.appendChild(jobsWrapper);
+          jobsContainer.appendChild(groupDiv);
+        });
+
+        // Display standalone jobs
+        standAloneJobs.forEach(job => {
+          const groupDiv = document.createElement('div');
+          groupDiv.className = "job-group relative mb-8";
+
+          const jobsWrapper = document.createElement('div');
+          jobsWrapper.className = "jobs-wrapper relative";
+
           const jobDiv = document.createElement('div');
-          jobDiv.className = "rounded-lg p-4 mb-4 border border-slate-800 shadow-md";
+          jobDiv.className = "job-card rounded-lg p-4 border border-slate-800 shadow-md block relative";
+          jobDiv.dataset.index = "0";
+          jobDiv.dataset.total = "1";
 
           jobDiv.innerHTML = job.source === 'hackernews'
             ? getHackerNewsTemplate(job)
             : getDefaultJobTemplate(job);
 
-          jobsContainer.appendChild(jobDiv);
+          jobsWrapper.appendChild(jobDiv);
+          groupDiv.appendChild(jobsWrapper);
+          jobsContainer.appendChild(groupDiv);
         });
+      }
+
+      function navigateJobs(groupDiv, direction) {
+        const cards = groupDiv.querySelectorAll('.job-card');
+        const currentCard = groupDiv.querySelector('.job-card:not(.hidden)');
+        const currentIndex = parseInt(currentCard.dataset.index);
+        const totalCards = parseInt(currentCard.dataset.total);
+
+        let nextIndex = direction === 'next'
+          ? (currentIndex + 1) % totalCards
+          : (currentIndex - 1 + totalCards) % totalCards;
+
+        updateActiveCard(groupDiv, nextIndex);
+      }
+
+      function navigateToJob(groupDiv, index) {
+        updateActiveCard(groupDiv, index);
+      }
+
+      function updateActiveCard(groupDiv, newIndex) {
+        const cards = groupDiv.querySelectorAll('.job-card');
+        const indicators = groupDiv.querySelectorAll('.rounded-full');
+        const leftPeek = groupDiv.querySelector('.peek-left');
+        const rightPeek = groupDiv.querySelector('.peek-right');
+        const totalCards = cards.length;
+
+        // Show/hide cards
+        cards.forEach((card, idx) => {
+          card.classList.toggle('hidden', idx !== newIndex);
+        });
+
+        // Update indicators
+        indicators.forEach((dot, idx) => {
+          dot.classList.toggle('bg-zinc-300', idx === newIndex);
+          dot.classList.toggle('bg-zinc-700', idx !== newIndex);
+        });
+
+        // Show/hide peeks based on available posts
+        if (leftPeek) {
+          leftPeek.style.display = newIndex === 0 ? 'none' : 'block';
+        }
+        if (rightPeek) {
+          rightPeek.style.display = newIndex === totalCards - 1 ? 'none' : 'block';
+        }
       }
 
       function getHackerNewsTemplate(job) {
@@ -178,6 +348,9 @@
               target="_blank" rel="noopener noreferrer">
               View on ${job.source.charAt(0).toUpperCase() + job.source.slice(1)}
             </a>
+          </div>
+          <div class="flex justify-start">
+            <p class="">${job.company}</p>
           </div>
           <div class="flex justify-between">
             <p class="text-sm text-end">${defaultDate}</p>
