@@ -7,6 +7,7 @@ from .database_manager import DatabaseManager
 from .job_filter import JobFilter
 from job_scraper.scrapers.hn_scraper import HackerNewsJobScraper
 from job_scraper.scrapers.indeed_scraper import IndeedScraper
+from job_scraper.scrapers.linkedin_scraper import LinkedinScraper
 
 class JobScraperOrchestrator:
     def __init__(self):
@@ -28,6 +29,16 @@ class JobScraperOrchestrator:
                         search_term=config["search_term"],
                         location=config["location"],
                         country=config["country"]
+                    )
+                )
+            elif config["type"] == "linkedin":
+                self.scrapers.append(
+                    LinkedinScraper(
+                        db_manager=self.db_manager,
+                        job_filter=filter_instance,
+                        filter_id=id(prompts),
+                        search_term=config["search_term"],
+                        location=config["location"],
                     )
                 )
             elif config["type"] == "hackernews":

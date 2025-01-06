@@ -38,6 +38,12 @@ PROMPTS = {
 # Scraper configurations
 SCRAPERS = [
     {
+        "type": "linkedin",
+        "search_term": "software engineer -senior -internship",
+        "location": "Frankfurt, Germany",
+        "prompts": ["job_type", "experience"]
+    },
+    {
         "type": "indeed",
         "search_term": "software engineer -senior -internship",
         "location": "Frankfurt, Germany",
