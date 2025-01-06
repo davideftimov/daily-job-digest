@@ -59,11 +59,7 @@ Open `web/index.html` in a browser.
 ## Features
 
 - Multi-source job scraping (Indeed, Hacker News)
-- LLM-based job filtering for:
-  - Location (Remote/European)
-  - Language
-  - Job type
-  - Experience level
+- LLM-based job filtering
 - Clean web interface with date navigation
 - Markdown rendering for job descriptions
 - Persistent SQLite storage
