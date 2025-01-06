@@ -43,7 +43,7 @@ uvicorn daily_job_digest.main:app --reload
 
 ### Accessing the Web UI
 
-Open `web/index.html` in a browser. The UI will connect to the API and display jobs grouped by date.
+Open `web/index.html` in a browser.
 
 ## Automation
 
@@ -55,42 +55,6 @@ Open `web/index.html` in a browser. The UI will connect to the API and display j
    ```batch
    cmd /c "cd /d C:\path\to\project && python -m job_scraper.main"
    ```
-
-### Alternative: Systemd (Linux)
-
-1. Create a service file `/etc/systemd/system/job-scraper.service`:
-```ini
-[Unit]
-Description=Daily Job Scraper
-After=network.target
-
-[Service]
-Type=oneshot
-ExecStart=/path/to/venv/bin/python -m job_scraper.main
-WorkingDirectory=/path/to/project
-
-[Install]
-WantedBy=multi-user.target
-```
-
-2. Create a timer `/etc/systemd/system/job-scraper.timer`:
-```ini
-[Unit]
-Description=Run job scraper daily
-
-[Timer]
-OnCalendar=*-*-* 06:00:00
-Persistent=true
-
-[Install]
-WantedBy=timers.target
-```
-
-3. Enable and start the timer:
-```bash
-sudo systemctl enable job-scraper.timer
-sudo systemctl start job-scraper.timer
-```
 
 ## Features
 
@@ -108,4 +72,3 @@ sudo systemctl start job-scraper.timer
 
 - Add new job sources by implementing the `JobScraper` base class
 - Modify filtering criteria in `config.py`
-- Adjust web UI styling using Tailwind classes
