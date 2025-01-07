@@ -21,7 +21,7 @@ class LinkedinScraper(JobScraper):
             site_name=["linkedin"],
             search_term=self.search_term,
             location=self.location,
-            results_wanted=2,
+            results_wanted=100,
             hours_old=24,
             linkedin_fetch_description=True,
         )
@@ -31,12 +31,12 @@ class LinkedinScraper(JobScraper):
     async def process_jobs(self, jobs: pd.DataFrame):
         for _, job in jobs.iterrows():
             description = job.get('description', 'what')
-            print(job)
+            
             filter_result = self.job_filter.filter_job(description, self.filter_id)
 
             time_posted = job.get('date_posted')
             if not time_posted or pd.isna(time_posted):
-                time_posted = int(datetime.now().timestamp())
+                time = int(datetime.now().timestamp())
             else:
                 time=int(pd.Timestamp(time_posted, tz='UTC').timestamp())
 
