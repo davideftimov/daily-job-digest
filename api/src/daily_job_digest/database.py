@@ -21,6 +21,7 @@ class Job(SQLModel, table=True):
     location: str = Field(default=None)
     hn_id: int = Field(default=None)
     company: str = Field(default=None)
+    viewed: bool = Field(default=False)
 
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)

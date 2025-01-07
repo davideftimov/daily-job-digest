@@ -6,14 +6,14 @@ from datetime import datetime, date, time
 
 router = APIRouter()
 
-@router.get("/comments/")
-async def get_comments(request: Request, session: SessionDep):
+@router.get("/jobs/")
+async def get_jobs(request: Request, session: SessionDep):
     statement = select(Job)
     results = session.exec(statement).all()
     return results
 
-@router.get("/comments/by-date/{target_date}")
-async def get_comments_by_date(
+@router.get("/jobs/by-date/{target_date}")
+async def get_jobs_by_date(
     target_date: date,
     session: SessionDep
 ):
@@ -27,3 +27,12 @@ async def get_comments_by_date(
     )
     results = session.exec(statement).all()
     return results
+
+@router.put("/jobs/{job_id}/viewed")
+def mark_job_viewed(job_id: str, session: SessionDep):
+    job = session.get(Job, job_id)
+    if job:
+        job.viewed = True
+        session.add(job)
+        session.commit()
+    return {"success": bool(job)}

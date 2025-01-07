@@ -13,6 +13,7 @@ class Job(SQLModel, table=True):
     location: str | None = None
     hn_id: int | None = None
     company: str | None = None
+    viewed: bool = Field(default=False)
 
 class DatabaseManager:
     def __init__(self, sqlite_file_name="database.db"):
