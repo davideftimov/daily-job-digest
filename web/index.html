@@ -87,12 +87,21 @@
       </div>
       <button id="next-date" class="py-2 text-2xl hover:text-zinc-50">→</button>
     </div>
+    <div class="flex justify-center gap-4 mb-4">
+      <button class="source-filter px-3 py-1 rounded-full border border-slate-800" data-source="all">All</button>
+      <button class="source-filter px-3 py-1 rounded-full border border-slate-800"
+        data-source="linkedin">LinkedIn</button>
+      <button class="source-filter px-3 py-1 rounded-full border border-slate-800" data-source="indeed">Indeed</button>
+      <button class="source-filter px-3 py-1 rounded-full border border-slate-800" data-source="hackernews">Hacker
+        News</button>
+    </div>
     <p id="loading" class="text-center text-lg">Loading jobs...</p>
     <p id="error" class="text-center text-red-500 hidden"></p>
   </div>
 
   <script>
     let jobsContainer, loadingMessage, errorMessage, jobsCount, currentDate, currentDateElement;
+    let currentSource = 'all';
 
     function displayJobs(jobs) {
       const filteredJobs = jobs.filter(job => job.filter === true && !job.viewed);
@@ -302,7 +311,15 @@
         const dateStr = formatDateForAPI(currentDate);
         currentDateElement.textContent = formatDateForDisplay(currentDate);
 
-        const response = await fetch(`http://127.0.0.1:8000/jobs/by-date/${dateStr}`);
+        const params = new URLSearchParams({
+          target_date: dateStr
+        });
+
+        if (currentSource !== 'all') {
+          params.append('source', currentSource);
+        }
+
+        const response = await fetch(`http://127.0.0.1:8000/jobs/?${params}`);
         if (!response.ok) {
           throw new Error("Failed to fetch jobs");
         }
@@ -360,6 +377,24 @@
       jobsCount = document.getElementById('jobs-count');
       currentDate = new Date();
       currentDateElement = document.getElementById('current-date');
+
+      // Add source filter handlers
+      document.querySelectorAll('.source-filter').forEach(button => {
+        button.addEventListener('click', () => {
+          // Update active state
+          document.querySelectorAll('.source-filter').forEach(btn => {
+            btn.classList.remove('bg-slate-800');
+          });
+          button.classList.add('bg-slate-800');
+
+          // Update source and fetch
+          currentSource = button.dataset.source;
+          fetchJobs();
+        });
+      });
+
+      // Set initial active source
+      document.querySelector('[data-source="all"]').classList.add('bg-slate-800');
 
       const prevDateBtn = document.getElementById('prev-date');
       const nextDateBtn = document.getElementById('next-date');
