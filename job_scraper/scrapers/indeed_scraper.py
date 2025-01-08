@@ -22,7 +22,7 @@ class IndeedScraper(JobScraper):
             site_name=["indeed"],
             search_term=self.search_term,
             location=self.location,
-            results_wanted=250,
+            results_wanted=100,
             hours_old=24,
             country_indeed=self.country,
             # description_format='html',
@@ -32,6 +32,10 @@ class IndeedScraper(JobScraper):
 
     async def process_jobs(self, jobs: pd.DataFrame):
         for _, job in jobs.iterrows():
+            company = job.get('company', None)
+            if self.is_company_blocked(company):
+                continue
+                
             description = job.get('description', '')
             filter_result = self.job_filter.filter_job(description, self.filter_id)
 

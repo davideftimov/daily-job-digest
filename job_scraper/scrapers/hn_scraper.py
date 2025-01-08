@@ -93,7 +93,11 @@ class HackerNewsJobScraper(JobScraper):
             if kid_id > max_id:
                 kid_data = await self.fetch_item_data(kid_id)
                 if 'text' in kid_data:
-                    filter_result = self.job_filter.filter_job(kid_data['text'], self.filter_id)
+                    text = kid_data.get('text', 'No text available')
+                    if self.is_company_blocked(text):
+                        continue
+                        
+                    filter_result = self.job_filter.filter_job(text, self.filter_id)
                     self.db_manager.save_job(Job(
                         id = f"hn-{kid_id}",
                         time = kid_data['time'],

@@ -7,25 +7,19 @@ LLM_CONFIG = {
     "base_url": "https://generativelanguage.googleapis.com/v1beta/openai/"
 }
 
+# Blocked companies - add companies you want to exclude
+BLOCKED_COMPANIES = [
+    "Company Name 1",
+    "Company Name 2"
+]
+
 # Define your prompts
 PROMPTS = {
-    "location": {
-        "text": """Given the job offer your task is to check if the offer fulfills the following criterium:
-                  -The job is REMOTE(Global or in an European country), Hybrid(in an European country) or On-site(in an European country)
-                  Respond only with 'YES' or 'NO'.""",
-        "required": True
-    },
     "language": {
         "text": """Given the job offer your task is to check if the offer fulfills the following criterium:
                   -The job offer is written in English
                   Respond only with 'YES' or 'NO'.""",
         "required": True
-    },
-    "job_type": {
-        "text": """Given the job offer your task is to check if the offer fulfills the following criterium:
-                  -The job offer is for a software developer (engineer) position
-                  Respond only with 'YES' or 'NO'.""",
-        "required": False
     },
     "experience": {
         "text": """Given the job offer your task is to check if the offer fulfills the following criterium:
@@ -40,46 +34,18 @@ SCRAPERS = [
     {
         "type": "linkedin",
         "search_term": "software engineer -senior -internship",
-        "location": "Frankfurt, Germany",
-        "prompts": ["job_type", "experience"]
+        "location": "City, Country",
+        "prompts": ["language", "experience"]
     },
     {
         "type": "indeed",
         "search_term": "software engineer -senior -internship",
-        "location": "Frankfurt, Germany",
-        "country": "Germany",
-        "prompts": ["language", "job_type", "experience"]
-    },
-    {
-        "type": "indeed",
-        "search_term": "software engineer -senior -internship",
-        "location": "Amsterdam, Netherlands",
-        "country": "Netherlands",
-        "prompts": ["language", "job_type", "experience"]
-    },
-    {
-        "type": "indeed",
-        "search_term": "ingénieur logiciel -senior -stage",
-        "location": "Paris, France",
-        "country": "France",
-        "prompts": ["job_type", "experience"]
-    },
-    {
-        "type": "indeed",
-        "search_term": "ingénieur logiciel -senior -stage",
-        "location": "Nice, France",
-        "country": "France",
-        "prompts": ["job_type", "experience"]
-    },
-    {
-        "type": "indeed",
-        "search_term": "software engineer -senior -internship",
-        "location": "Geneva, Switzerland",
-        "country": "Switzerland",
-        "prompts": ["job_type", "experience"]
+        "location": "City, Country",
+        "country": "Country",
+        "prompts": ["language", "experience"]
     },
     {
         "type": "hackernews",
-        "prompts": ["location", "experience"]
-    }
+        "prompts": ["experience"]
+    },
 ]

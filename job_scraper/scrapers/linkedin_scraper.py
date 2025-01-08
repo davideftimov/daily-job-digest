@@ -30,6 +30,10 @@ class LinkedinScraper(JobScraper):
 
     async def process_jobs(self, jobs: pd.DataFrame):
         for _, job in jobs.iterrows():
+            company = job.get('company', None)
+            if self.is_company_blocked(company):
+                continue
+                
             description = job.get('description', 'what')
             
             filter_result = self.job_filter.filter_job(description, self.filter_id)
