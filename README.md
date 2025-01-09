@@ -2,11 +2,34 @@
 
 A job scraping and filtering system that collects software engineering job postings from various sources, filters them based on custom criteria using LLMs, and presents them through a clean web interface.
 
-## Components
+## Components Overview
 
-- **Job Scraper**: Python script that scrapes jobs from Indeed and Hacker News
-- **API**: FastAPI server to serve the collected jobs
-- **Web UI**: Simple web interface to browse jobs by date
+The system consists of three main components:
+
+### 1. Job Scraper
+
+The job scraper is responsible for collecting and filtering job postings:
+- Built in Python using async scraping
+- Supports multiple job sources (Indeed, Hacker News)
+- Uses Gemini API for intelligent job filtering
+- Stores results in SQLite database
+
+### 2. API Server
+
+FastAPI-based backend that serves the collected jobs:
+- RESTful endpoints for job queries
+- Date-based job filtering
+- Markdown processing for job descriptions
+- CORS support for web client
+
+### 3. Web UI
+
+Clean and simple interface for browsing jobs:
+- Date-based navigation
+- Rendered job descriptions
+- Source links and company information
+
+![Web UI Screenshot](docs/images/UI.png)
 
 ## Setup
 
@@ -28,22 +51,28 @@ CSE_ID=your_google_cse_id          # For HN search
 
 ## Usage
 
-### Running the Job Scraper
-
+### Job Scraper
 ```bash
 python -m job_scraper.main
 ```
+- Runs daily job collection
+- Filters based on configured criteria
+- Updates local database
 
-### Starting the API
-
+### API Server
 ```bash
 cd api/src
 uvicorn daily_job_digest.main:app --reload
 ```
+- Serves jobs at `http://localhost:8000`
+- API documentation at `/docs`
+- Health check at `/health`
 
-### Accessing the Web UI
-
-Open `web/index.html` in a browser.
+### Web UI
+- Open `web/index.html` in a browser
+- Navigate jobs by date
+- Click job titles to expand descriptions
+- Direct links to job postings
 
 ## Automation
 
