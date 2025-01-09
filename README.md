@@ -26,8 +26,8 @@ FastAPI-based backend that serves the collected jobs:
 
 Clean and simple interface for browsing jobs:
 - Date-based navigation
-- Rendered job descriptions
-- Source links and company information
+- Job source filtering
+- Groups multiple job postings from the same company
 
 ![Web UI Screenshot](docs/images/UI.png)
 
