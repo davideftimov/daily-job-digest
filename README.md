@@ -9,18 +9,14 @@ The system consists of three main components:
 ### 1. Job Scraper
 
 The job scraper is responsible for collecting and filtering job postings:
-- Built in Python using async scraping
-- Supports multiple job sources (Indeed, Hacker News)
-- Uses Gemini API for intelligent job filtering
+- Supports multiple job sources (LinkedIn,Indeed, Hacker News)
+- Uses LLM for job filtering
 - Stores results in SQLite database
 
 ### 2. API Server
-
-FastAPI-based backend that serves the collected jobs:
-- RESTful endpoints for job queries
-- Date-based job filtering
-- Markdown processing for job descriptions
-- CORS support for web client
+FastAPI-based backend for serving collected jobs:
+- Provides RESTful endpoints for job queries
+- Enables date-based filtering
 
 ### 3. Web UI
 
@@ -55,24 +51,15 @@ CSE_ID=your_google_cse_id          # For HN search
 ```bash
 python -m job_scraper.main
 ```
-- Runs daily job collection
-- Filters based on configured criteria
-- Updates local database
 
 ### API Server
 ```bash
 cd api/src
 uvicorn daily_job_digest.main:app --reload
 ```
-- Serves jobs at `http://localhost:8000`
-- API documentation at `/docs`
-- Health check at `/health`
 
 ### Web UI
 - Open `web/index.html` in a browser
-- Navigate jobs by date
-- Click job titles to expand descriptions
-- Direct links to job postings
 
 ## Automation
 
