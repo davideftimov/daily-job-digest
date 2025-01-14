@@ -5,6 +5,7 @@ from job_scraper.scrapers.base_scraper import JobScraper
 from job_scraper.database_manager import DatabaseManager, Job
 from job_scraper.job_filter import JobFilter
 from datetime import datetime
+import logging
 
 class IndeedScraper(JobScraper):
     def __init__(self, db_manager: DatabaseManager, job_filter: JobFilter, filter_id: int, search_term: str, location: str, country: str, language_filter: bool = True):
@@ -16,6 +17,7 @@ class IndeedScraper(JobScraper):
         self.country = country
         self.source = "indeed"
         self.language_filter = language_filter
+        self.logger = logging.getLogger("job_scraper.indeed")
         
     async def fetch_jobs(self) -> pd.DataFrame:
         jobs = scrape_jobs(
@@ -27,7 +29,7 @@ class IndeedScraper(JobScraper):
             country_indeed=self.country,
             # description_format='html',
         )
-        print(f"Found {len(jobs)} jobs on Indeed for location: {self.location}")
+        self.logger.info(f"Found {len(jobs)} jobs on Indeed for location: {self.location}")
         return jobs
 
     async def process_jobs(self, jobs: pd.DataFrame):
@@ -59,4 +61,4 @@ class IndeedScraper(JobScraper):
             if not jobs.empty:
                 await self.process_jobs(jobs)
         except Exception as e:
-            print(f"Error in Indeed scraper: {e}")
+            self.logger.error(f"Error in Indeed scraper: {e}", exc_info=True)

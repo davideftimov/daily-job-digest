@@ -1,7 +1,9 @@
 import asyncio
 import os
+import logging
 from dotenv import load_dotenv
 from .config import SCRAPERS
+from .logging_config import setup_logging
 
 from .database_manager import DatabaseManager
 from .job_filter import JobFilter
@@ -11,6 +13,8 @@ from job_scraper.scrapers.linkedin_scraper import LinkedinScraper
 
 class JobScraperOrchestrator:
     def __init__(self):
+        self.logger = setup_logging()
+        self.logger.info("Initializing Job Scraper Orchestrator")
         load_dotenv()
         self.db_manager = DatabaseManager()
         self.job_filter = JobFilter()
@@ -53,8 +57,11 @@ class JobScraperOrchestrator:
                 )
 
     async def run(self):
+        self.logger.info("Starting job scraping process")
         for scraper in self.scrapers:
+            self.logger.debug(f"Running scraper: {scraper.__class__.__name__}")
             await scraper.run()
+        self.logger.info("Job scraping process completed")
 
 if __name__ == "__main__":
     orchestrator = JobScraperOrchestrator()

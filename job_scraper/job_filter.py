@@ -4,6 +4,7 @@ from .config import LLM_CONFIG, PROMPTS
 import time
 from collections import deque
 from datetime import datetime, timedelta
+import logging
 
 class JobFilter:
     _instance: Optional['JobFilter'] = None
@@ -24,6 +25,7 @@ class JobFilter:
             self.requests_timestamps = deque(maxlen=10)
             self.rate_limit = 10
             self.time_window = 60
+            self.logger = logging.getLogger("job_scraper.filter")
             self._initialized = True
             
         if prompt_names is not None:
@@ -61,7 +63,7 @@ class JobFilter:
             )
             return 'yes' in completion.choices[0].message.content.lower()
         except Exception as e:
-            print(f"Error in criteria check: {e}")
+            self.logger.error(f"Error in criteria check: {e}", exc_info=True)
             return False
 
     def filter_job(self, comment_text: str, scraper_id: int) -> bool:
@@ -69,12 +71,12 @@ class JobFilter:
             prompts = self.get_prompts(scraper_id)
             for prompt_name, prompt_text, required in prompts:
                 result = self._check_criteria(prompt_text, comment_text)
-                print(f"{prompt_name}: {result}")
+                self.logger.debug(f"{prompt_name}: {result}")
                 
                 if not result:
                     return False
             return True
             
         except Exception as e:
-            print(f"Error processing comment: {e}")
+            self.logger.error(f"Error processing comment: {e}", exc_info=True)
             return False

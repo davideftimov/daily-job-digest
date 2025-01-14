@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 import pytz
 import calendar
 from typing import Optional, List, Dict
+import logging
 
 from job_scraper.scrapers.base_scraper import JobScraper
 from job_scraper.database_manager import DatabaseManager, Job
@@ -17,6 +18,7 @@ class HackerNewsJobScraper(JobScraper):
         self.job_filter = job_filter
         self.filter_id = filter_id
         self.source = "hackernews"
+        self.logger = logging.getLogger("job_scraper.hackernews")
 
     def get_who_is_hiring_query(self) -> str:
         # Set timezone to Eastern Time
@@ -61,9 +63,9 @@ class HackerNewsJobScraper(JobScraper):
 
     async def fetch_latest_who_is_hiring(self) -> Optional[int]:
         query = self.get_who_is_hiring_query()
-        print(f"Searching for: {query}")
+        self.logger.info(f"Searching for: {query}")
         search_results = await self.google_search(query)
-        print(search_results)
+        self.logger.debug(f"Search results: {search_results}")
         
         if search_results:
             url = search_results[0].get('link')
@@ -117,4 +119,4 @@ class HackerNewsJobScraper(JobScraper):
                 if jobs:
                     await self.process_jobs(jobs)
         except Exception as e:
-            print(f"Error in HackerNews scraper: {e}")
+            self.logger.error(f"Error in HackerNews scraper: {e}", exc_info=True)
