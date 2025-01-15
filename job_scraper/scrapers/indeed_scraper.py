@@ -8,7 +8,7 @@ from datetime import datetime
 import logging
 
 class IndeedScraper(JobScraper):
-    def __init__(self, db_manager: DatabaseManager, job_filter: JobFilter, filter_id: int, search_term: str, location: str, country: str, language_filter: bool = True):
+    def __init__(self, db_manager: DatabaseManager, job_filter: JobFilter, filter_id: int, search_term: str, location: str, country: str, hours_old: int = 24, language_filter: bool = True):
         self.db_manager = db_manager
         self.job_filter = job_filter
         self.filter_id = filter_id
@@ -16,6 +16,7 @@ class IndeedScraper(JobScraper):
         self.location = location
         self.country = country
         self.source = "indeed"
+        self.hours_old = hours_old
         self.language_filter = language_filter
         self.logger = logging.getLogger("job_scraper.indeed")
         
@@ -25,9 +26,8 @@ class IndeedScraper(JobScraper):
             search_term=self.search_term,
             location=self.location,
             results_wanted=100,
-            hours_old=24,
+            hours_old=self.hours_old,
             country_indeed=self.country,
-            # description_format='html',
         )
         self.logger.info(f"Found {len(jobs)} jobs on Indeed for location: {self.location}")
         return jobs

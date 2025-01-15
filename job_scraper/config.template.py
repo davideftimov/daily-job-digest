@@ -29,6 +29,8 @@ PROMPTS = {
     }
 }
 
+HOURS_OLD = 24  # How old jobs to fetch
+
 # Scraper configurations - Example structure
 SCRAPERS = [
     {

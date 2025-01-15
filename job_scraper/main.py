@@ -2,7 +2,7 @@ import asyncio
 import os
 import logging
 from dotenv import load_dotenv
-from .config import SCRAPERS
+from .config import SCRAPERS, HOURS_OLD
 from .logging_config import setup_logging
 
 from .database_manager import DatabaseManager
@@ -32,7 +32,8 @@ class JobScraperOrchestrator:
                         filter_id=id(prompts),
                         search_term=config["search_term"],
                         location=config["location"],
-                        country=config["country"]
+                        country=config["country"],
+                        hours_old=HOURS_OLD
                     )
                 )
             elif config["type"] == "linkedin":
@@ -43,6 +44,7 @@ class JobScraperOrchestrator:
                         filter_id=id(prompts),
                         search_term=config["search_term"],
                         location=config["location"],
+                        hours_old=HOURS_OLD
                     )
                 )
             elif config["type"] == "hackernews":
