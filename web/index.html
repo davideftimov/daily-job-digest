@@ -338,7 +338,7 @@
     }
 
     function formatDateForAPI(date) {
-      return date.toISOString().split('T')[0];
+      return date.toLocaleDateString('en-CA');
     }
 
     function formatDateForDisplay(date) {

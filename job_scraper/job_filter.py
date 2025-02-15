@@ -22,9 +22,9 @@ class JobFilter:
                 base_url=LLM_CONFIG["base_url"]
             )
             self.prompts_by_scraper: Dict[str, List[tuple]] = {}
-            self.requests_timestamps = deque(maxlen=10)
-            self.rate_limit = 10
-            self.time_window = 60
+            self.requests_timestamps = deque(maxlen=15)
+            self.rate_limit = 15
+            self.time_window = 61
             self.logger = logging.getLogger("job_scraper.filter")
             self._initialized = True
             
@@ -51,17 +51,43 @@ class JobFilter:
 
         self.requests_timestamps.append(now)
 
+    def _retry_with_backoff(self, operation, max_retries=50, delay=5):
+        """Execute operation with exponential backoff retry strategy."""
+        total_delay = 0
+        
+        for attempt in range(max_retries):
+            try:
+                return operation()
+            except Exception as e:
+                if not hasattr(e, 'status_code') or e.status_code not in [429, 500]:
+                    raise e
+                
+                self.logger.warning(
+                    f"Attempt {attempt + 1}/{max_retries}: "
+                    f"Received error {e.status_code}, retrying in {delay} seconds..."
+                )
+                
+                time.sleep(delay)
+                total_delay += delay
+                delay *= 2
+        
+        raise Exception(f"Failed after {max_retries} attempts")
+
     def _check_criteria(self, prompt: str, comment_text: str) -> bool:
         try:
-            self._wait_for_rate_limit()
-            completion = self.client.chat.completions.create(
-                model=LLM_CONFIG["model"],
-                messages=[
-                    {"role": "system", "content": prompt},
-                    {"role": "user", "content": comment_text}
-                ],
-            )
-            return 'yes' in completion.choices[0].message.content.lower()
+            def make_request():
+                self._wait_for_rate_limit()
+                completion = self.client.chat.completions.create(
+                    model=LLM_CONFIG["model"],
+                    messages=[
+                        {"role": "system", "content": prompt},
+                        {"role": "user", "content": comment_text}
+                    ],
+                )
+                return 'yes' in completion.choices[0].message.content.lower()
+
+            return self._retry_with_backoff(make_request)
+            
         except Exception as e:
             self.logger.error(f"Error in criteria check: {e}", exc_info=True)
             return False

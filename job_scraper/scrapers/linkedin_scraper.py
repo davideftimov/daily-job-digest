@@ -24,8 +24,9 @@ class LinkedinScraper(JobScraper):
             site_name=["linkedin"],
             search_term=self.search_term,
             location=self.location,
-            results_wanted=100,
+            results_wanted=150,
             hours_old=self.hours_old,
+            is_remote=False,
             linkedin_fetch_description=True,
         )
         self.logger.info(f"Found {len(jobs)} jobs on Linkedin for location: {self.location}")

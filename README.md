@@ -9,7 +9,7 @@ The system consists of three main components:
 ### 1. Job Scraper
 
 The job scraper is responsible for collecting and filtering job postings:
-- Supports multiple job sources (LinkedIn,Indeed, Hacker News)
+- Supports multiple job sources (LinkedIn, Indeed, Hacker News)
 - Uses LLM for job filtering
 - Stores results in SQLite database
 
@@ -71,16 +71,3 @@ uvicorn daily_job_digest.main:app --reload
    ```batch
    cmd /c "cd /d C:\path\to\project && python -m job_scraper.main"
    ```
-
-## Features
-
-- Multi-source job scraping (Indeed, Hacker News)
-- LLM-based job filtering
-- Clean web interface with date navigation
-- Markdown rendering for job descriptions
-- Persistent SQLite storage
-
-## Customization
-
-- Add new job sources by implementing the `JobScraper` base class
-- Modify filtering criteria in `config.py`
