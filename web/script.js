@@ -261,10 +261,108 @@ async function markViewed(jobId, isHideAction = false) {
         });
         console.log(`Job ${jobId} marked as viewed.`);
 
-        fetchJobs(isHideAction);
+        // Remove the job from the DOM instead of refetching
+        removeJobFromDOM(jobId);
     } catch (error) {
         console.error(`Failed to mark job ${jobId} as viewed.`, error);
     }
+}
+
+function removeJobFromDOM(jobId) {
+    // Find the job card containing the clicked link
+    const link = document.querySelector(`[data-job-id="${jobId}"]`);
+    if (!link) return;
+
+    // Navigate up to the job card
+    const jobCard = link.closest('.job-card');
+    if (!jobCard) return;
+
+    // Get the job group container
+    const jobGroup = jobCard.closest('.job-group');
+    if (!jobGroup) return;
+
+    const jobsWrapper = jobGroup.querySelector('.jobs-wrapper');
+    const allCards = jobsWrapper.querySelectorAll('.job-card');
+    const totalCards = allCards.length;
+    const currentCardIndex = parseInt(jobCard.dataset.index);
+
+    // Update job count
+    updateJobCount(-1);
+
+    // Handle differently based on whether this is a standalone job or part of a group
+    if (totalCards === 1) {
+        // If it's the only job in the group, remove the entire group
+        jobGroup.remove();
+    } else {
+        // If part of a group with multiple jobs
+        jobCard.remove();
+
+        // Update indices for remaining cards
+        const remainingCards = jobsWrapper.querySelectorAll('.job-card');
+        remainingCards.forEach((card, idx) => {
+            card.dataset.index = idx;
+            card.dataset.total = totalCards - 1;
+        });
+
+        // Update indicators
+        const indicators = jobGroup.querySelectorAll('.rounded-full');
+        if (indicators.length > 0) {
+            // Remove the indicator for the removed job
+            if (indicators[currentCardIndex]) {
+                indicators[currentCardIndex].remove();
+            }
+
+            // Update remaining indicators
+            const remainingIndicators = jobGroup.querySelectorAll('.rounded-full');
+            remainingIndicators.forEach((dot, idx) => {
+                dot.classList.toggle('bg-zinc-300', idx === 0);
+                dot.classList.toggle('bg-zinc-700', idx !== 0);
+                dot.onclick = () => navigateToJob(jobGroup, idx);
+            });
+        }
+
+        // Show the first remaining job if the active one was removed
+        if (currentCardIndex === 0 && remainingCards.length > 0) {
+            remainingCards[0].classList.remove('hidden');
+        } else {
+            // If a card other than the first was removed, navigate to the previous index
+            const newActiveIndex = Math.min(currentCardIndex, remainingCards.length - 1);
+            updateActiveCard(jobGroup, newActiveIndex);
+        }
+
+        // Update peek buttons visibility
+        updatePeekButtonsVisibility(jobGroup);
+    }
+}
+
+function updatePeekButtonsVisibility(jobGroup) {
+    const cards = jobGroup.querySelectorAll('.job-card');
+    if (cards.length <= 1) {
+        // If only 1 or 0 cards left, hide both peek buttons
+        const peekButtons = jobGroup.querySelectorAll('.peek-left, .peek-right');
+        peekButtons.forEach(btn => btn.style.display = 'none');
+        return;
+    }
+
+    // Find the active card
+    const activeCard = jobGroup.querySelector('.job-card:not(.hidden)');
+    if (!activeCard) return;
+
+    const activeIndex = parseInt(activeCard.dataset.index);
+    const totalCards = cards.length;
+
+    // Update peek buttons
+    const leftPeek = jobGroup.querySelector('.peek-left');
+    const rightPeek = jobGroup.querySelector('.peek-right');
+
+    if (leftPeek) leftPeek.style.display = activeIndex === 0 ? 'none' : 'block';
+    if (rightPeek) rightPeek.style.display = activeIndex === totalCards - 1 ? 'none' : 'block';
+}
+
+function updateJobCount(delta) {
+    const currentCount = parseInt(jobsCount.textContent.split(' ')[0]);
+    const newCount = currentCount + delta;
+    jobsCount.textContent = `${newCount} ${newCount === 1 ? 'job' : 'jobs'}`;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -313,7 +411,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target.classList.contains('view-link') || e.target.classList.contains('hide-link')) {
             const jobId = e.target.dataset.jobId;
             if (jobId) {
-                await markViewed(jobId, e.target.classList.contains('hide-link'));
+                await markViewed(jobId);
+                e.preventDefault(); // Prevent navigation if it's a view link
             }
         }
     });

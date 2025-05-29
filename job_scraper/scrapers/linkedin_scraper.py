@@ -37,10 +37,13 @@ class LinkedinScraper(JobScraper):
             company = job.get('company', None)
             if self.is_company_blocked(company):
                 continue
-                
+
+            title=job.get('title', None)    
             description = job.get('description', 'what')
+
+            title_description = f"{title}\n{description}" if title else description
             
-            filter_result = self.job_filter.filter_job(description, self.filter_id)
+            filter_result = self.job_filter.filter_job(title_description, self.filter_id)
 
             time_posted = job.get('date_posted')
             if not time_posted or pd.isna(time_posted):
@@ -56,7 +59,7 @@ class LinkedinScraper(JobScraper):
                 filter=filter_result, 
                 source=self.source, 
                 url=job.get('job_url', None), 
-                title=job.get('title', None), 
+                title=title, 
                 location=job.get('location', None),
                 company=job.get('company', None))
             
